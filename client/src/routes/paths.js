@@ -6,6 +6,7 @@ export const ROUTES = {
   SUPPORT: "/support",
   DECKS: "/decks",
   MY_DECKS: "/decks/mine",
+  FAVORITES: "/decks/favorites",
   DECK_GENERATE: "/decks/generate",
   DECK_CREATE: "/decks/create",
   DECK_DETAILS: (id) => `/decks/${id}`,

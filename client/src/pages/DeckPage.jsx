@@ -37,6 +37,7 @@ import { getCardsByDeckId } from "@/api/cardsAPI";
 import { UserContext } from "@/context/UserContext";
 import { ROUTES } from "@/routes/paths.js";
 import StylishDiv from "@/components/StylishDiv";
+import FavoriteButton from "@/components/FavoriteButton";
 import {
   EmailShareButton,
   FacebookMessengerShareButton,
@@ -277,6 +278,7 @@ const DeckPage = () => {
         </div>
 
         <div className="flex items-center gap-4">
+          <FavoriteButton deckId={id} size="lg" iconSize={25} />
           <Tooltip
             content="Share Deck"
             showArrow={true}

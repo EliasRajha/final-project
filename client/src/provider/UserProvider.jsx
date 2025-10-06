@@ -13,8 +13,19 @@ export default function UserProvider({ children }) {
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
 
   const navigate = useNavigate();
+
+  const loadFavorites = async () => {
+    try {
+      const { getFavorites } = await import("@/api/favoritesAPI");
+      const res = await getFavorites();
+      setFavoriteIds(new Set((res.items || []).map((d) => d._id)));
+    } catch {
+      setFavoriteIds(new Set());
+    }
+  };
 
   useEffect(() => {
     const initializeUser = async () => {
@@ -22,19 +33,29 @@ export default function UserProvider({ children }) {
       if (getLocalStorageUser) {
         const localUser = JSON.parse(getLocalStorageUser);
         const refreshUserToken = await refreshToken(localUser);
-        setUser({
-          userid: refreshUserToken.userid || "",
-          username: refreshUserToken.username || "",
-          profilePictureUrl: refreshUserToken.profilePictureUrl || "",
-          accessToken: refreshUserToken.accessToken || "",
-          refreshToken: refreshUserToken.refreshToken || "",
-        });
+        if (refreshUserToken) {
+          setLocalStorageUser(refreshUserToken);
+        }
       }
       setIsUserLoaded(true);
     };
 
     initializeUser();
   }, []);
+
+  const addFavoriteId = (deckId) =>
+    setFavoriteIds((prev) => {
+      const next = new Set(prev);
+      next.add(deckId);
+      return next;
+    });
+
+  const removeFavoriteId = (deckId) =>
+    setFavoriteIds((prev) => {
+      const next = new Set(prev);
+      next.delete(deckId);
+      return next;
+    });
 
   const setLocalStorageUser = (userData) => {
     localStorage.setItem("user", JSON.stringify(userData));
@@ -46,9 +67,10 @@ export default function UserProvider({ children }) {
       refreshToken: userData.refreshToken || "",
     });
     setIsUserLoaded(true);
+    loadFavorites();
   };
 
-  const updateUser = (userData) => {
+  const updateUser = async (userData) => {
     const getLocalStorageUser = localStorage.getItem("user");
     if (getLocalStorageUser) {
       const localUser = JSON.parse(getLocalStorageUser);
@@ -61,6 +83,7 @@ export default function UserProvider({ children }) {
       };
       setUser(updatedUser);
       localStorage.setItem("user", JSON.stringify(updatedUser));
+      await loadFavorites();
     }
   };
 
@@ -68,6 +91,7 @@ export default function UserProvider({ children }) {
     localStorage.removeItem("user");
     setUser(null);
     setIsUserLoaded(false);
+    setFavoriteIds(new Set());
     addToast({
       title: "Logged out",
       description: "You have successfully logged out.",
@@ -81,7 +105,6 @@ export default function UserProvider({ children }) {
     try {
       const refreshUserInfo = await refreshAccessToken(activeUser.refreshToken);
       if (refreshUserInfo) {
-        setLocalStorageUser(refreshUserInfo);
         return refreshUserInfo;
       }
     } catch {
@@ -121,12 +144,16 @@ export default function UserProvider({ children }) {
         isResetPasswordOpen,
         setIsResetPasswordOpen,
         forceLogin,
+        favoriteIds,
+        addFavoriteId,
+        removeFavoriteId,
       }}
     >
       {children}
     </UserContext.Provider>
   );
 }
+
 UserProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };

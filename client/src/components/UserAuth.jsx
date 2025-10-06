@@ -68,6 +68,13 @@ const UserAuth = () => {
             </DropdownItem>
 
             <DropdownItem
+              key="favorites"
+              onPress={() => navigate(ROUTES.FAVORITES)}
+            >
+              My Favorites
+            </DropdownItem>
+
+            <DropdownItem
               key="logout"
               color="danger"
               onPress={() => logoutUser()}

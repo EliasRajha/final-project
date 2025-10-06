@@ -15,6 +15,7 @@ import {
 import cn from "@/util/cn";
 import { ROUTES } from "@/routes/paths.js";
 import { PiCaretRightBold } from "react-icons/pi";
+import FavoriteButton from "@/components/FavoriteButton";
 
 const Deck = ({ deck, className, from }) => {
   const { user: currentUser } = useContext(UserContext);
@@ -26,7 +27,18 @@ const Deck = ({ deck, className, from }) => {
     cardsCount: numCards,
   } = deck;
 
+  const isMine = from === ROUTES.MY_DECKS || !user;
+
+  const displayName = isMine
+    ? currentUser?.username || "You"
+    : user?.username || "Unknown";
+
+  const avatarSrc = isMine
+    ? currentUser?.profilePictureUrl || ""
+    : user?.profilePictureUrl || "";
+
   const navigate = useNavigate();
+
   return (
     <Card
       isPressable
@@ -47,13 +59,23 @@ const Deck = ({ deck, className, from }) => {
         <p className="text-secondary line-clamp-2 text-left font-bold">
           {title}
         </p>
-        <Chip size="sm" variant="faded">
-          {numCards} Cards
-        </Chip>
+
+        <div
+          className="flex items-center gap-2"
+          onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
+        >
+          <Chip size="sm" variant="faded">
+            {numCards} Cards
+          </Chip>
+          <FavoriteButton deckId={deck._id} size="sm" iconSize={18} />
+        </div>
       </CardHeader>
+
       <CardBody>
         <p className="line-clamp-3">{description}</p>
       </CardBody>
+
       <CardFooter className="justify-between">
         <div className="flex gap-3">
           <Avatar
@@ -62,19 +84,17 @@ const Deck = ({ deck, className, from }) => {
             color="primary"
             radius="full"
             size="md"
-            src={
-              user?.profilePictureUrl || currentUser?.profilePictureUrl || ""
-            }
+            src={avatarSrc}
+            name={displayName?.[0] || ""}
           />
           <div className="flex flex-col items-start justify-center">
             <h4 className="text-default-700 text-xs leading-none font-semibold">
               Created by
             </h4>
-            <h5 className="text-primary">
-              {user?.username || currentUser?.username || "You"}
-            </h5>
+            <h5 className="text-primary">{displayName}</h5>
           </div>
         </div>
+
         <Button
           isIconOnly
           as={Link}
@@ -82,12 +102,13 @@ const Deck = ({ deck, className, from }) => {
           radius="full"
           size="md"
           variant="ghost"
-          onPress={() =>
+          onPress={(e) => {
+            e?.stopPropagation?.();
             navigate(
               ROUTES.DECK_DETAILS(deckID),
               from ? { state: { from } } : undefined
-            )
-          }
+            );
+          }}
         >
           <PiCaretRightBold size={20} />
         </Button>
@@ -102,9 +123,9 @@ Deck.propTypes = {
     title: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
     userInfo: PropTypes.shape({
-      username: PropTypes.string.isRequired,
+      username: PropTypes.string,
       profilePictureUrl: PropTypes.string,
-    }).isRequired,
+    }),
     cardsCount: PropTypes.number.isRequired,
   }).isRequired,
   className: PropTypes.string,

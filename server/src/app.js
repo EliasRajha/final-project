@@ -6,7 +6,7 @@ import userProgressRouter from "./usersProgress/userProgress.router.js";
 import generalRouter from "./general/general.router.js";
 import { errorHandler } from "./middlewares/errorHandler.middleware.js";
 import { notFound } from "./middlewares/notFound.middleware.js";
-
+import favoriteRouter from "./favorites/favorite.router.js";
 // Create an express server
 const app = express();
 app.use(cors());
@@ -16,7 +16,7 @@ app.use("/api/users", userRouter);
 app.use("/api/decks", deckRouter);
 app.use("/api/user-progress", userProgressRouter);
 app.use("/api/general", generalRouter);
-
+app.use("/api/favorites", favoriteRouter);
 if (process.env.NODE_ENV === "production") {
   app.use(
     express.static(new URL("../../client/dist", import.meta.url).pathname),

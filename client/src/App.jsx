@@ -15,7 +15,7 @@ import BrowseDecks from "@/pages/BrowseDecks";
 import MyDecks from "@/pages/MyDecks";
 import { ROUTES } from "@/routes/paths";
 import Support from "@/pages/Support";
-
+import Favorites from "@/pages/Favorites";
 const App = () => {
   return (
     <Routes>
@@ -35,6 +35,7 @@ const App = () => {
       <Route path={ROUTES.DECKS} element={<BrowseDecks />} />
       <Route path={ROUTES.BROWSE} element={<BrowseDecks />} />
       <Route path={ROUTES.MY_DECKS} element={<MyDecks />} />
+      <Route path={ROUTES.FAVORITES} element={<Favorites />} />
       <Route path={ROUTES.DECK_CREATE} element={<CreateDeck />} />
       <Route path={ROUTES.DECK_DETAILS(":id")} element={<DeckPage />} />
       <Route path={ROUTES.DECK_EDIT(":id")} element={<EditDeck />} />
